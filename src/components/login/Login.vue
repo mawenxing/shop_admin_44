@@ -107,7 +107,7 @@ export default {
         }
         // console.log('校验成功, 开始去登录了')
         // axios.post(url,data,config)
-        axios.post('http://localhost:8888/api/private/v1/login', this.loginForm).then(res => {
+        axios.post('login', this.loginForm).then(res => {
           console.log(res);
 
           if (res.data.meta.status === 200) {
