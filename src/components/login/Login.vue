@@ -53,7 +53,7 @@
           >登录</el-button>
           <el-button @click='resetForm'>重置</el-button>
         </el-form-item>
-        <h1>我是login页的h1</h1>
+        <!-- <h1>我是login页的h1</h1> -->
       </el-form>
     </el-col>
   </el-row>
@@ -112,13 +112,18 @@ export default {
 
           if (res.data.meta.status === 200) {
 
-            // 提示
+            //0. 把 token 保存到本地
+            // console.log(res.data.data.token);
+            localStorage.setItem('token', res.data.data.token)
+
+
+            // 1. 提示
             this.$message({
               message: '登录成功',
               type: 'success',
               duration: 800
             })
-            // 跳转到home页
+            // 2. 跳转到home页
             this.$router.push('/home')
           } else {
             this.$message({
