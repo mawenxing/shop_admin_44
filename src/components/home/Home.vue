@@ -89,33 +89,74 @@
 export default {
   methods: {
     // 退出登录
-    logout () {
-      this.$confirm('此操作将退出账户, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        // console.log('点击了确定 走then');
+    async logout () {
+      /**
+       * 使用 async 和 await 处理 $confirm 不能 和之前那样处理了
+       * 之前 点击确定 => 打印 confirm ,点击取消 => 打印 cancel
+       * 现在 :
+       *   点击确定 =>  没有异常  点击取消 => 有异常
+       * try{
+       *   // 点击确定
+       * }catch(err) {
+       *  // 点击取消
+       * }
+       */
 
-        // 0. 退出删除本地的token
+      try {
+        await this.$confirm('此操作将退出账户, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+        console.log('点击了确定')
+
+        // 1. 退出删除本地的token
         localStorage.removeItem('token')
 
-        // 1. 提示 退出成功
+        // 2. 提示 退出成功
         this.$message({
           message: '退出成功',
           type: 'success',
           duration: 800
         })
 
-        // 2. 回到login页
+        // 3. 回到login页
         this.$router.push('/login')
-      }).catch(() => {
+      } catch (error) {
+        console.log('点击了取消')
         this.$message({
           message: '取消退出',
           type: 'info',
           duration: 800
         })
-      })
+      }
+
+      // this.$confirm('此操作将退出账户, 是否继续?', '提示', {
+      //   confirmButtonText: '确定',
+      //   cancelButtonText: '取消',
+      //   type: 'warning'
+      // }).then(() => {
+      //   // console.log('点击了确定 走then');
+
+      // // 0. 退出删除本地的token
+      // localStorage.removeItem('token')
+
+      // // 1. 提示 退出成功
+      // this.$message({
+      //   message: '退出成功',
+      //   type: 'success',
+      //   duration: 800
+      // })
+
+      // // 2. 回到login页
+      // this.$router.push('/login')
+      // }).catch(() => {
+      // this.$message({
+      //   message: '取消退出',
+      //   type: 'info',
+      //   duration: 800
+      // })
+      // })
     },
     // 处理路径
     handleUrlPath () {
