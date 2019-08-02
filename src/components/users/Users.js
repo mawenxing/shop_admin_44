@@ -2,7 +2,7 @@
 /* eslint-disable */
 export default {
   name: 'users',
-  data () {
+  data() {
     return {
       // 表格数据
       usersData: [
@@ -63,135 +63,235 @@ export default {
         ]
       },
       // 开关
-      value1: true
+      value1: true,
+      // 是否现实编辑用户对话框
+      dialogEditUserVisible: false,
+      // 编辑用户表单对象
+      editUserForm: {
+        username: '飞哥',
+        email: '',
+        mobile: '',
+        id: 0
+      }
     }
   },
-  created () {
+  created() {
     // 刷新页面 , 默认请求全部数据的第一页
     this.getUsersData()
   },
   methods: {
     // 加载用户列表数据
-    getUsersData (pagenum = 1, query = '') {
+    async getUsersData(pagenum = 1, query = '') {
       // axios.get(url,config)  config : { params : {} , headers }
-      this.$axios
-        .get('users', {
-          // 参数对象
-          params: {
-            query, // 给一个代表请求全部  a 包含a的,
-            pagenum, // 当前第一页
-            pagesize: 2 // 2个
-          }
-          // 请求头对象
-          // headers: {
-          //   Authorization: localStorage.getItem('token')
-          // }
-        })
-        .then(res => {
-          console.log(res)
-          // 保存列表数据
-          this.usersData = res.data.data.users
-          // 保存 total
-          this.total = res.data.data.total
-          // 保存当前页
-          this.pagenum = res.data.data.pagenum
-        })
+
+      let config = {
+        params: {
+          query, // 给一个代表请求全部  a 包含a的,
+          pagenum, // 当前第一页
+          pagesize: 2 // 2个
+        }
+      }
+
+      let res = await this.$axios.get('users', config)
+      console.log(res)
+      // 保存列表数据
+      this.usersData = res.data.data.users
+      // 保存 total
+      this.total = res.data.data.total
+      // 保存当前页
+      this.pagenum = res.data.data.pagenum
+
+      // this.$axios
+      //   .get('users', {
+      //     // 参数对象
+      //     params: {
+      //       query, // 给一个代表请求全部  a 包含a的,
+      //       pagenum, // 当前第一页
+      //       pagesize: 2 // 2个
+      //     }
+      //     // 请求头对象
+      //     // headers: {
+      //     //   Authorization: localStorage.getItem('token')
+      //     // }
+      //   })
+      //   .then(res => {
+      //     console.log(res)
+      // // 保存列表数据
+      // this.usersData = res.data.data.users
+      // // 保存 total
+      // this.total = res.data.data.total
+      // // 保存当前页
+      // this.pagenum = res.data.data.pagenum
+      //   })
     },
     // 点击分页
-    currentPageChanged (curPage) {
+    currentPageChanged(curPage) {
       console.log(curPage)
       // 注意 : 以前input没有内容, 只需要传当前页即可
       // 以后需要添加第二个参数
       this.getUsersData(curPage, this.input3)
     },
     // 搜索
-    search () {
+    search() {
       // console.log(this.input3); // t
 
       // 请求  内容 t 的 第一页内容
       this.getUsersData(1, this.input3)
     },
     // 显示添加用户对话框
-    showAddUserDialog () {
+    showAddUserDialog() {
       this.dialogAddUserVisible = true
     },
     // 添加用户
-    addUser () {
+    async addUser() {
       // axios.post(url,data,config)
-      this.$axios
-        .post('users', this.addUserForm, {
-          // headers: {
-          //   Authorization: localStorage.getItem('token')
-          // }
+      let res = await this.$axios.post('users', this.addUserForm)
+      if (res.data.meta.status === 201) {
+        // 1. 关闭对话框
+        this.dialogAddUserVisible = false
+        // 2. 提示
+        this.$message({
+          message: '添加用户成功',
+          type: 'success',
+          duration: 800
         })
-        .then(res => {
-          if (res.data.meta.status === 201) {
-            // 1. 关闭对话框
-            this.dialogAddUserVisible = false
-            // 2. 提示
-            this.$message({
-              message: '添加用户成功',
-              type: 'success',
-              duration: 800
-            })
-            // 3. 刷新一下
-            this.getUsersData(1)
-          }
-        })
+        // 3. 刷新一下
+        this.getUsersData(1)
+      }
+
+      // this.$axios
+      //   .post('users', this.addUserForm, {
+      //     // headers: {
+      //     //   Authorization: localStorage.getItem('token')
+      //     // }
+      //   })
+      //   .then(res => {
+      // if (res.data.meta.status === 201) {
+      //   // 1. 关闭对话框
+      //   this.dialogAddUserVisible = false
+      //   // 2. 提示
+      //   this.$message({
+      //     message: '添加用户成功',
+      //     type: 'success',
+      //     duration: 800
+      //   })
+      //   // 3. 刷新一下
+      //   this.getUsersData(1)
+      // }
+      //   })
     },
     // 监听对话框关闭
-    dialogClosed () {
+    dialogClosed() {
       // console.log('关闭了')
       this.$refs.addUserRef.resetFields()
     },
     // 删除用户
-    delUser (id) {
-      console.log(id)
-
-      // axios.delete(url,config)
-      this.$axios
-        .delete(`users/${id}`, {
-          // headers: {
-          //   Authorization: localStorage.getItem('token')
-          // }
+    async delUser(id) {
+      let res = await this.$axios.delete(`users/${id}`)
+      if (res.data.meta.status === 200) {
+        // 1. 提示
+        this.$message({
+          message: '删除成功',
+          type: 'success',
+          duration: 800
         })
-        .then(res => {
-          if (res.data.meta.status === 200) {
-            // 1. 提示
-            this.$message({
-              message: '删除成功',
-              type: 'success',
-              duration: 800
-            })
 
-            // 2. 刷新
-            this.getUsersData()
-          }
-        })
+        // 2. 刷新
+        this.getUsersData()
+      }
+
+      // console.log(id)
+
+      // // axios.delete(url,config)
+      // this.$axios
+      //   .delete(`users/${id}`, {
+      //     // headers: {
+      //     //   Authorization: localStorage.getItem('token')
+      //     // }
+      //   })
+      //   .then(res => {
+      // if (res.data.meta.status === 200) {
+      //   // 1. 提示
+      //   this.$message({
+      //     message: '删除成功',
+      //     type: 'success',
+      //     duration: 800
+      //   })
+
+      //   // 2. 刷新
+      //   this.getUsersData()
+      // }
+      // })
     },
     // 改变状态
-    stateChange (row) {
+    async stateChange(row) {
       // 使用es6 的解构
       const { id, mg_state } = row
+
+      let res = await this.$axios.put(`users/${id}/state/${mg_state}`)
+      if (res.data.meta.status === 200) {
+        // 1. 提示
+        this.$message({
+          message: '更新状态成功',
+          type: 'success',
+          duration: 800
+        })
+      }
+
       // console.log('改变了')
       // axios.put(url,data,config)
-      this.$axios
-        .put(`users/${id}/state/${mg_state}`, null, {
-          // headers: {
-          //   Authorization: localStorage.getItem('token')
-          // }
+      // this.$axios
+      //   .put(`users/${id}/state/${mg_state}`, null, {
+      //     // headers: {
+      //     //   Authorization: localStorage.getItem('token')
+      //     // }
+      //   })
+      //   .then(res => {
+      //     // console.log(res)
+      // if (res.data.meta.status === 200) {
+      //   // 1. 提示
+      //   this.$message({
+      //     message: '更新状态成功',
+      //     type: 'success',
+      //     duration: 800
+      //   })
+      // }
+      //   })
+    },
+    // 显示编辑用户对话框
+    showEditUserDialog(row) {
+      this.dialogEditUserVisible = true
+
+      // 解构
+      let { username, email, mobile, id } = row
+      this.editUserForm.username = username
+      this.editUserForm.email = email
+      this.editUserForm.mobile = mobile
+      this.editUserForm.id = id
+    },
+    // 编辑用户
+    async editUser() {
+      // 解构取值
+      const { email, mobile, id } = this.editUserForm
+
+      // put(url,data,config)
+      let res = await this.$axios.put(`users/${id}`, {
+        email,
+        mobile
+      })
+      console.log(res)
+      if (res.data.meta.status === 200) {
+        //1. 关闭对话框
+        this.dialogEditUserVisible = false
+        //2. 提示
+        this.$message({
+          message: '更新成功',
+          type: 'success',
+          duration: 800
         })
-        .then(res => {
-          // console.log(res)
-          if (res.data.meta.status === 200) {
-            // 1. 提示
-            this.$message({
-              message: '更新状态成功',
-              type: 'success',
-              duration: 800
-            })
-          }
-        })
+        //3. 刷新一下
+        this.getUsersData(this.pagenum, this.input3)
+      }
     }
   }
 }
