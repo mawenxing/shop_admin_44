@@ -125,17 +125,14 @@ export default {
 
         // 3. 回到login页
         this.$router.push('/login')
-
       } catch (error) {
-        console.log('点击了取消');
+        console.log('点击了取消')
         this.$message({
           message: '取消退出',
           type: 'info',
           duration: 800
         })
       }
-
-
 
       // this.$confirm('此操作将退出账户, 是否继续?', '提示', {
       //   confirmButtonText: '确定',
